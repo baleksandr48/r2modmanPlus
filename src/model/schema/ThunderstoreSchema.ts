@@ -67,4 +67,11 @@ export class EcosystemSchema {
 
         return config ? config[1] : undefined;
     }
+
+    /**
+     * @param packageId Package's name in "TeamName-PackageName" format excluding version number.
+     */
+    static isModLoaderPackage(packageId: string): boolean {
+        return this.modloaderPackages.some(pkg => pkg.packageId.toLowerCase() === packageId.toLowerCase());
+    }
 }

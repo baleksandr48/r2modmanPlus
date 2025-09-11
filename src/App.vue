@@ -139,7 +139,6 @@ onMounted(async () => {
         });
     });
 
-    store.commit('updateModLoaderPackageNames');
     store.dispatch('tsMods/updateExclusions');
 });
 

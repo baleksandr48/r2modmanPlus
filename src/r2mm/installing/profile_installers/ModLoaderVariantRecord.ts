@@ -35,10 +35,3 @@ export const MOD_LOADER_VARIANTS: Modloaders = Object.fromEntries(
             OVERRIDES[game.internalFolderName] || MODLOADER_PACKAGES
         ])
 );
-
-export const getModLoaderPackageNames = () => {
-    const deduplicated = new Set(EcosystemSchema.modloaderPackages.map((x) => x.packageId));
-    const names = Array.from(deduplicated);
-    names.sort();
-    return names;
-}

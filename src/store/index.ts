@@ -12,14 +12,12 @@ import { FolderMigration } from '../migrations/FolderMigration';
 import Game from '../model/game/Game';
 import GameManager from '../model/game/GameManager';
 import R2Error from '../model/errors/R2Error';
-import { getModLoaderPackageNames } from '../r2mm/installing/profile_installers/ModLoaderVariantRecord';
 import ManagerSettings from '../r2mm/manager/ManagerSettings';
 import { SplashModule } from './modules/SplashModule';
 
 export interface State {
     activeGame: Game;
     isMigrationChecked: boolean;
-    modLoaderPackageNames: string[];
     _settings: ManagerSettings | null;
 }
 
@@ -34,7 +32,6 @@ export const store = {
     state: {
         activeGame: GameManager.defaultGame,
         isMigrationChecked: false,
-        modLoaderPackageNames: [],
 
         // Access through getters to ensure the settings are loaded.
         _settings: null,
@@ -93,19 +90,9 @@ export const store = {
         },
         setSettings(state: State, settings: ManagerSettings) {
             state._settings = settings;
-        },
-        updateModLoaderPackageNames(state: State) {
-            // The list is static and doesn't change during runtime.
-            if (!state.modLoaderPackageNames.length) {
-                state.modLoaderPackageNames = getModLoaderPackageNames();
-            }
         }
     },
     getters: {
-        isModLoader: (state: State) => (packageName: string): boolean => {
-            return state.modLoaderPackageNames.includes(packageName);
-        },
-
         settings(state: State): ManagerSettings {
             if (state._settings === null) {
                 throw new R2Error(
