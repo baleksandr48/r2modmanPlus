@@ -79,6 +79,20 @@ export class EcosystemSchema {
             : undefined;
     }
 
+
+    /**
+     * @param packageId Package's name in "TeamName-PackageName" format excluding version number.
+     * @param settingsIdentifier Game's settings identifier.
+     */
+    static getRecommendedVersion(packageId: string, settingsIdentifier: string): string|undefined {
+        // Use hardcoded values until this information available via Thunderstore Ecosystem API.
+        if (packageId === "LavaGang-MelonLoader" && settingsIdentifier === "BONEWORKS") {
+            return "0.5.4";
+        }
+
+        return undefined;
+    }
+
     /**
      * @param packageId Package's name in "TeamName-PackageName" format excluding version number.
      */
