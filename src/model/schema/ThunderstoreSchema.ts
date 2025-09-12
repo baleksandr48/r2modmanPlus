@@ -2,10 +2,13 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 
 import ecosystem from "../../assets/data/ecosystem.json";
-import { R2Modman as GameConfig, ThunderstoreEcosystem } from "../../assets/data/ecosystemTypes";
+import {
+    ModloaderPackage as ModLoaderPackage,
+    ThunderstoreEcosystem,
+    R2Modman as GameConfig
+}  from "../../assets/data/ecosystemTypes";
 import jsonSchema from "../../assets/data/ecosystemJsonSchema.json";
 import R2Error from "../errors/R2Error";
-import ModLoaderPackageMapping from "../installing/ModLoaderPackageMapping";
 
 // Re-export generated types/Enums to avoid having the whole codebase
 // tightly coupled with the generated ecosystemTypes.
@@ -72,11 +75,8 @@ export class EcosystemSchema {
     /**
      * @param packageId Package's name in "TeamName-PackageName" format excluding version number.
      */
-    static getModLoaderMapping(packageId: string): ModLoaderPackageMapping|undefined {
-        const pkg = this.modloaderPackages.find(pkg => pkg.packageId.toLowerCase() === packageId.toLowerCase());
-        return pkg
-            ? new ModLoaderPackageMapping(pkg.packageId, pkg.rootFolder, pkg.loader)
-            : undefined;
+    static getModLoaderMapping(packageId: string): ModLoaderPackage|undefined {
+        return this.modloaderPackages.find(pkg => pkg.packageId.toLowerCase() === packageId.toLowerCase());
     }
 
 
