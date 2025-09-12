@@ -5,7 +5,7 @@ import { EcosystemSchema, PackageLoader } from '../../../model/schema/Thundersto
 /**
  * A set of modloader packages read from the ecosystem schema.
  */
-export const MODLOADER_PACKAGES = EcosystemSchema.modloaderPackages.map((x) =>
+const MODLOADER_PACKAGES = EcosystemSchema.modloaderPackages.map((x) =>
     new ModLoaderPackageMapping(
         x.packageId,
         x.rootFolder,
