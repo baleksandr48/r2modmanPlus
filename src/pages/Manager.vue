@@ -159,7 +159,7 @@ import LaunchTypeModal from "../components/modals/launch-type/LaunchTypeModal.vu
 import appWindow from '../providers/node/app/app_window';
 import GameInstructionParser from "../r2mm/launching/instructions/GameInstructionParser";
 import ManagerActivityBar from '../components/navigation/ManagerActivityBar.vue';
-import ConcerningPackageReviewModal from 'components/modals/ConcerningPackageReviewModal.vue';
+import ConcerningPackageReviewModal from '@r2/components/modals/ConcerningPackageReviewModal.vue';
 
 const store = getStore<State>();
 const router = useRouter();
