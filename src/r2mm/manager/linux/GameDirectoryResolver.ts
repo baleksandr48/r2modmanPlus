@@ -70,6 +70,11 @@ export default class GameDirectoryResolverImpl extends GameDirectoryResolverProv
             const folderName = parsedVdf.AppState.installdir;
             const gamePath = path.join(manifestLocation, 'common', folderName);
             if (await fs.exists(gamePath)) {
+                const hasNestedSteamFolder = GameManager.activeGame.steamFolderName.startsWith(`${folderName}/`);
+                if (hasNestedSteamFolder) {
+                    const dir = path.dirname(gamePath);
+                    return path.join(dir, GameManager.activeGame.steamFolderName);
+                }
                 return gamePath;
             } else {
                 return new FileNotFoundError(
@@ -100,8 +105,8 @@ export default class GameDirectoryResolverImpl extends GameDirectoryResolverProv
 
         // Skip isProtonGame check if user has explicitly declared launch behaviour.
         const manualLaunchType = await getLaunchType(game);
-        if (manualLaunchType !== EnumResolver.from<LaunchType>(LaunchType, LaunchType.AUTO)) {
-            return manualLaunchType === EnumResolver.from<LaunchType>(LaunchType, LaunchType.PROTON);
+        if (manualLaunchType !== LaunchType.AUTO) {
+            return manualLaunchType === LaunchType.PROTON;
         }
 
         try {
@@ -127,7 +132,7 @@ export default class GameDirectoryResolverImpl extends GameDirectoryResolverProv
             const depotKeys = Object.keys(installedDepots);
             let depotKey: string;
             if (depotKeys.length > 0) {
-                depotKey = depotKeys[0];
+                depotKey = depotKeys[0]!;
             } else {
                 depotKey = DepotLoader.DEPOT_DEFAULT_KEY;
             }

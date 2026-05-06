@@ -21,17 +21,16 @@ jobs:
           #   os: macos-11
           #   platform: osx
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - uses: jdx/mise-action@v3
         with:
-          # The talk on the street says this might be a good version for building.
-          node-version: 20.19.0
-          cache: yarn
+          install: true
+          cache: true
+          log_level: debug
 
       - name: Install Yarn dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - if: matrix.platform == 'linux'
         name: Install bsdtar # Required by electron-builder when targeting pacman.
@@ -60,3 +59,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: core.setFailed('It seems the build process failed silently. See previous step for more info.')
+
+      - if: contains(github.event.head_commit.message, 'build(artifact)')
+        name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          path: "dist/electron/Packaged"
+          name: "r2modman-${{ matrix.platform }}-build-${{ github.sha }}"

@@ -29,6 +29,7 @@ declare global {
             buffer: NodeBufferProvider
         },
         app: {
+            checkForApplicationUpdates: () => Promise<void>;
             getPlatform: () => string;
             restart: () => void;
             hookModInstallProtocol: (callback: (data: any) => void) => void;
@@ -43,6 +44,7 @@ declare global {
             openPath: (path: string) => void;
             openExternal: (path: string) => void;
             selectFile: (path: string) => void;
+            getEnvironmentVariables: () => Record<string, string>;
         }
     }
 }

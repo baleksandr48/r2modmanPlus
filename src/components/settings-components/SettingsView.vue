@@ -20,6 +20,7 @@ import {useRouter} from 'vue-router';
 import {getLaunchType} from "../../model/real_enums/launch/LaunchType";
 import {LaunchTypeModalOpen} from "../../components/modals/launch-type/LaunchTypeRefs";
 import {useI18n} from "vue-i18n";
+import appWindow from '../../providers/node/app/app_window';
 
 const store = getStore<State>();
 let router = useRouter();
@@ -378,7 +379,6 @@ function getFilteredSettings() {
 }
 
 onMounted(async () => {
-
     const gameDirectory = await GameDirectoryResolverProvider.instance.getDirectory(activeGame.value);
     if (!(gameDirectory instanceof R2Error)) {
         await settings.value.setGameDirectory(gameDirectory);
@@ -452,5 +452,9 @@ function emitInvoke(invoked: string) {
 <style lang="scss" scoped>
 #settings-view {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
 }
 </style>

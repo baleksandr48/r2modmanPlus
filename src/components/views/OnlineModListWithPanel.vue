@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="online-cards">
         <OnlineRowCard
             v-for='(key, index) in pagedModList' :key="`online-${key.getFullName()}-${index}`"
             :image="getImageUrl(key)"
@@ -28,6 +28,9 @@
                 </span>
                 <span class='card-header-icon' v-if="isThunderstoreModInstalled(key) && !readOnly">
                     <i class='fas fa-check' v-tooltip.left="t('translations.pages.manager.online.modList.tooltips.installed')"></i>
+                </span>
+                <span class='card-header-icon' v-if="key.getNsfwFlag()">
+                    <i class="fas fa-pause-circle" v-tooltip.left="'Mod marked as NSFW'"></i>
                 </span>
             </template>
         </OnlineRowCard>
@@ -84,3 +87,9 @@ function emitCardClick(mod: ThunderstoreMod) {
 }
 
 </script>
+
+<style scoped lang="scss">
+#online-cards {
+    min-width: min-content;
+}
+</style>

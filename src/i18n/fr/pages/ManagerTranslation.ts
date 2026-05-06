@@ -98,7 +98,6 @@ export const ManagerTranslation: ManagerMessageFormat = {
         failedToSetTheGameFolder: {
             title: 'Échec du changement de dossier {gameName}',
             listedExecutableNames: 'L\'exécutable doit être l\'un des suivants : "{options}".',
-            solution: 'Si cette erreur apparaît alors que l\'exécutable est correct, veuillez exécuter en tant qu\'administrateur.'
         },
         clearingGameDirectory: {
             title: 'Nettoyage du répertoire d\'installation de {gameName}',
@@ -113,7 +112,7 @@ export const ManagerTranslation: ManagerMessageFormat = {
         dependencyStrings: {
             title: 'Liste des identifiants de dépendance',
             dependency: '{modName}-{versionNumber}',
-            close: 'Fermer'
+            close: '@:translations.pages.manager.online.modals.sort.close'
         },
         launchArguments: {
             title: 'Définir des arguments de lancement personnalisés',
@@ -303,11 +302,11 @@ export const ManagerTranslation: ManagerMessageFormat = {
                     short: 'Obsolète',
                     long: 'Ce mod est potentiellement cassé'
                 },
-                donate: 'Faire un don à l\'auteur du mod',
+                donate: '@:translations.pages.manager.installed.localModCard.tooltips.donate',
                 installed: 'Mod déjà installé',
             },
             mod: {
-                author: 'par {author}'
+                author: '@:translations.pages.manager.online.previewPanel.author'
             },
             actions: {
                 download: 'Télécharger',

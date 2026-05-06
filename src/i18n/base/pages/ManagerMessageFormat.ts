@@ -93,7 +93,6 @@ export type ManagerMessageFormat = {
         failedToSetTheGameFolder: {
             title: string;
             listedExecutableNames: string;
-            solution: string;
         },
         clearingGameDirectory: {
             title: string;

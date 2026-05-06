@@ -9,7 +9,7 @@ import { LogSeverity } from '../../../providers/ror2/logging/LoggerProvider';
 import Dependants from '../../../r2mm/mods/Dependants';
 import { valueToReadableDate } from '../../../utils/DateUtils';
 import { splitToNameAndVersion } from '../../../utils/DependencyUtils';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getStore } from '../../../providers/generic/store/StoreProvider';
 import { State } from '../../../store';
 import { useI18n } from 'vue-i18n';
@@ -36,7 +36,7 @@ const isLatestVersion = computed(() => store.getters['tsMods/isLatestVersion'](p
 const localModList = computed(() => store.state.profile.modList);
 const tsMod = computed(() => store.getters['tsMods/tsMod'](props.mod));
 
-function updateDependencies() {
+async function updateDependencies() {
     if (props.mod.getDependencies().length === 0) {
         return;
     }
@@ -169,9 +169,9 @@ function viewAssociatedMods() {
     store.commit('openAssociatedModsModal', props.mod);
 }
 
-function created() {
+onMounted(() => {
     updateDependencies();
-}
+})
 
 // Need to wrap util call in method to allow access from Vue context
 function getReadableDate(value: number): string {
@@ -222,7 +222,7 @@ function dependencyStringToModName(x: string) {
 
         <!-- Show icon button row even when card is collapsed -->
         <template v-slot:other-icons>
-            <DonateIconButton :mod="tsMod"/>
+            <DonateIconButton :mod="tsMod" v-if="tsMod"/>
             <span v-if="!isLatestVersion"
                 @click.prevent.stop="updateMod()"
                 class='card-header-icon'>
@@ -254,43 +254,43 @@ function dependencyStringToModName(x: string) {
         </template>
 
         <!-- Show bottom button row -->
-        <a @click="uninstallMod()" class='card-footer-item'>
+        <button @click="uninstallMod()" class='button'>
             {{ t('translations.pages.manager.installed.localModCard.actions.uninstall') }}
-        </a>
+        </button>
 
-        <a v-if="canBeDisabled && mod.isEnabled()" @click="disableMod()" class='card-footer-item'>
+        <button v-if="canBeDisabled && mod.isEnabled()" @click="disableMod()" class='button'>
             {{ t('translations.pages.manager.installed.localModCard.actions.disable') }}
-        </a>
-        <a v-else-if="canBeDisabled && !mod.isEnabled()" @click="enableMod(mod)" class='card-footer-item' >
+        </button>
+        <button v-else-if="canBeDisabled && !mod.isEnabled()" @click="enableMod(mod)" class='button' >
             {{ t('translations.pages.manager.installed.localModCard.actions.enable') }}
-        </a>
+        </button>
 
-        <a @click="viewAssociatedMods()" class='card-footer-item'>
+        <button @click="viewAssociatedMods()" class='button'>
             {{ t('translations.pages.manager.installed.localModCard.actions.associated') }}
-        </a>
+        </button>
 
-        <ExternalLink :url="mod.getWebsiteUrl()" class="card-footer-item">
+        <ExternalLink :url="mod.getWebsiteUrl()" class="button">
             {{ t('translations.pages.manager.installed.localModCard.actions.openWebsite') }}
             <i class="fas fa-external-link-alt margin-left margin-left--half-width"></i>
         </ExternalLink>
 
-        <a v-if="!isLatestVersion" @click="updateMod()" class='card-footer-item'>
+        <button v-if="!isLatestVersion" @click="updateMod()" class='button'>
             {{ t('translations.pages.manager.installed.localModCard.actions.update') }}
-        </a>
+        </button>
 
-        <a v-if="missingDependencies.length"
+        <button v-if="missingDependencies.length"
             @click="downloadDependency(missingDependencies[0])"
-            class='card-footer-item'>
+            class='button'>
             {{ t('translations.pages.manager.installed.localModCard.actions.downloadDependency') }}
-        </a>
+        </button>
 
-        <a v-if="disabledDependencies.length"
+        <button v-if="disabledDependencies.length"
             @click="enableMod(disabledDependencies[0])"
-            class='card-footer-item'>
+            class='button'>
             {{ t('translations.pages.manager.installed.localModCard.actions.enableSpecific', { dependencyName: disabledDependencies[0].getDisplayName() }) }}
-        </a>
+        </button>
 
-        <DonateButton :mod="tsMod"/>
+        <DonateButton v-if="tsMod" :mod="tsMod"/>
     </ExpandableCard>
 </template>
 

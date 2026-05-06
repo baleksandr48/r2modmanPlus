@@ -1,4 +1,5 @@
 <template>
+    <ManagerActivityBar/>
     <div id="download-monitor-view">
         <Hero
             :title="t('translations.pages.downloadMonitor.title.text')"
@@ -154,6 +155,7 @@ import * as DownloadUtils from '../utils/DownloadUtils';
 import { getStore } from '../providers/generic/store/StoreProvider';
 import { State } from '../store';
 import { useI18n } from 'vue-i18n';
+import ManagerActivityBar from '../components/navigation/ManagerActivityBar.vue';
 
 const store = getStore<State>();
 const { t } = useI18n();
@@ -162,6 +164,8 @@ const { t } = useI18n();
 <style lang="scss" scoped>
 #download-monitor-view {
     width: 100%;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .download-item-action-button {

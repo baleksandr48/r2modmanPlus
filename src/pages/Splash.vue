@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <hero :title="t('translations.pages.splash.pageTitle', {appName: appName})" :subtitle='t(splashText)' :heroType=heroType />
+    <div id="splash-body">
+        <hero :title="t('translations.pages.splash.pageTitle', {appName: appName})" :subtitle='splashText' :heroType=heroType />
         <div class='notification is-warning'>
             <p>{{ t('translations.pages.splash.gameUpdatesWarning') }}</p>
         </div>
@@ -140,13 +140,16 @@ import { getStore } from '../providers/generic/store/StoreProvider';
 import { useRouter } from 'vue-router';
 import { useSplashComposable } from '../components/composables/SplashComposable';
 import path from '../providers/node/path/path';
-import { UpdateRequestItemBody } from '../store/modules/SplashModule';
-import FileUtils from "../utils/FileUtils";
-import {areWrapperArgumentsProvided, isProtonRequired} from '../utils/LaunchUtils';
+import FileUtils from '../utils/FileUtils';
+import { areWrapperArgumentsProvided, getDeterminedLaunchType, isManagerRunningOnFlatpak } from '../utils/LaunchUtils';
 import appWindow from '../providers/node/app/app_window';
 import Buffer from '../providers/node/buffer/buffer';
 import { useI18n } from 'vue-i18n';
 import ManagerInformation from '../_managerinf/ManagerInformation';
+import ProtocolProvider from '../providers/generic/protocol/ProtocolProvider';
+import ManagerSettings from '../r2mm/manager/ManagerSettings';
+import { LaunchType } from '../model/real_enums/launch/LaunchType';
+import { UpdateRequestItemBody } from '../store/modules/SplashModule';
 
 const store = getStore<State>();
 const router = useRouter();
@@ -163,43 +166,30 @@ const appName = computed(() => ManagerInformation.APP_NAME);
 
 store.commit('splash/initialiseRequests');
 
-// Ensure that the manager isn't outdated.
-function checkForUpdates() {
-    store.dispatch('splash/setSplashText', 'translations.pages.splash.states.preparing');
-    window.app.checkForApplicationUpdates()
-        .then(async () => {
-            store.commit('splash/updateRequestItem', {
-                requestName: 'UpdateCheck',
-                value: 100
-            } as UpdateRequestItemBody);
-            await store.dispatch('splash/getThunderstoreMods');
-            moveToNextScreen();
-        })
-}
-
 async function moveToNextScreen() {
     if (appWindow.getPlatform() === 'linux') {
         const activeGame: Game = store.state.activeGame;
-
-        if (!(await isProtonRequired(activeGame))) {
-            console.log('Not proton game');
-            await ensureWrapperInGameFolder();
+        const settings = await ManagerSettings.getSingleton(activeGame);
+        await ensureWrapperInGameFolder('linux_wrapper.sh');
+        await ensureWrapperInGameFolder('steam_executable_launch.sh');
+        await ensureWrapperInGameFolder('web_start_wrapper.sh');
+        const gameIsProton = await getDeterminedLaunchType(activeGame, settings.getLaunchType() || LaunchType.AUTO) === LaunchType.PROTON;
+        if (!gameIsProton || await isManagerRunningOnFlatpak()) {
             if (!(await areWrapperArgumentsProvided(activeGame))) {
-                router.push({name: 'linux'});
-                return;
+                return router.push({name: 'linux'});
             }
         }
     } else if (appWindow.getPlatform() === 'darwin') {
-        await ensureWrapperInGameFolder();
-        router.push({name: 'linux'});
-        return;
+        await ensureWrapperInGameFolder('linux_wrapper.sh');
+        return router.push({name: 'linux'});
     }
-    router.push({name: 'profiles'});
+    return router.push({name: 'profiles'});
 }
 
-async function ensureWrapperInGameFolder() {
+type WrapperScript = 'linux_wrapper.sh' | 'steam_executable_launch.sh' | 'web_start_wrapper.sh';
+
+async function ensureWrapperInGameFolder(wrapperName: WrapperScript) {
     const staticsDirectory = window.app.getStaticsDirectory();
-    const wrapperName = appWindow.getPlatform() === 'darwin' ? 'macos_proxy' : 'linux_wrapper.sh';
     const activeGame: Game = store.state.activeGame;
     console.log(`Ensuring wrapper for current game ${activeGame.displayName} in ${path.join(PathResolver.MOD_ROOT, wrapperName)}`);
     try {
@@ -214,15 +204,30 @@ async function ensureWrapperInGameFolder() {
         if (await FsProvider.instance.exists(path.join(PathResolver.MOD_ROOT, wrapperName))) {
             await FsProvider.instance.unlink(path.join(PathResolver.MOD_ROOT, wrapperName));
         }
-        const wrapperFileResult = await fetch(`/${wrapperName}`).then(res => res.arrayBuffer());
+        const wrapperFileResult = await fetch(ProtocolProvider.getPublicAssetUrl(`/${wrapperName}`)).then(res => res.arrayBuffer());
         const wrapperFileContent = Buffer.from(wrapperFileResult);
+        await FsProvider.instance.writeFile(path.join(PathResolver.MOD_ROOT, wrapperName), wrapperFileContent);
         await FsProvider.instance.writeFile(path.join(PathResolver.MOD_ROOT, wrapperName), wrapperFileContent);
     }
     await FsProvider.instance.chmod(path.join(PathResolver.MOD_ROOT, wrapperName), 0o755);
 }
 
-onMounted(() => {
-    store.dispatch('splash/setSplashText', 'translations.pages.splash.states.checkingForUpdates');
-    setTimeout(checkForUpdates, 100);
+onMounted(async () => {
+    store.commit('splash/updateRequestItem', {
+        requestName: 'UpdateCheck',
+        value: 100
+    } as UpdateRequestItemBody);
+    await store.dispatch('splash/getThunderstoreMods');
+    moveToNextScreen();
 })
 </script>
+
+<style lang="scss" scoped>
+#splash-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+</style>

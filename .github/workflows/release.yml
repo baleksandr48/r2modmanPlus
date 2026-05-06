@@ -20,15 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: jdx/mise-action@v3
         with:
-          # The talk on the street says this might be a good version for building.
-          node-version: 20.11.0
-          cache: yarn
+          install: true
+          cache: true
+          log_level: debug
 
       - name: Install Yarn dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - if: matrix.platform == 'linux'
         name: Install bsdtar # Required by electron-builder when targeting pacman.
@@ -56,3 +55,50 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: core.setFailed('It seems the build process failed silently. See previous step for more info.')
+
+  release-flatpak:
+    name: Release for Flatpak
+    needs: release
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+          log_level: debug
+
+      - name: Install Yarn dependencies
+        run: yarn install --immutable
+
+      - name: Generate release manifest
+        run: yarn generate-release-manifest
+
+      - name: Generate node sources
+        run: yarn generate-node-sources
+
+      - name: Build flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: r2modman.flatpak
+          manifest-path: flatpak/io.github.ebkr.r2modman.release.yaml
+
+      - name: Compute release tag
+        id: tag
+        run: echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Mark checkout as safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Append standalone flatpak to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh release upload "$TAG_NAME" r2modman.flatpak --clobber

@@ -35,5 +35,16 @@ export const GameSelectionTranslation: GameSelectionMessageFormat = {
             game: 'Rechercher un jeu',
             server: 'Rechercher un serveur'
         }
+    },
+    cardView: {
+        imageAltText: 'Image du jeu',
+        sections: {
+            favourites: 'Favoris',
+            games: 'Jeux',
+            servers: 'Serveurs',
+            searchResults: 'Résultats de recherche',
+            hiddenGames: 'Jeux masqués',
+            hiddenGamesNotice: 'Ces jeux ne sont plus pris en charge.',
+        }
     }
 }

@@ -33,5 +33,16 @@ export type GameSelectionMessageFormat = {
     tabs: {
         game: string;
         server: string;
+    },
+    cardView: {
+        imageAltText: string;
+        sections: {
+            favourites: string;
+            games: string;
+            servers: string;
+            searchResults: string;
+            hiddenGames: string;
+            hiddenGamesNotice: string;
+        }
     }
 }

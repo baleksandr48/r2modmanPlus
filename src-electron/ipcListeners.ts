@@ -3,6 +3,7 @@ import electronUpdater from 'electron-updater';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { isManagerRunningOnFlatpak } from 'src/utils/LaunchUtils';
 
 let browserWindow: BrowserWindow;
 let app: App;
@@ -18,11 +19,10 @@ ipcMain.on('get-browser-window', () => {
     browserWindow.webContents.send('receive-browser-window', browserWindow);
 });
 
-ipcMain.handle('update-app', async () => {
-    if (typeof process.env.APPIMAGE !== 'undefined' || !process.execPath.startsWith(os.tmpdir())) {
-        electronUpdater.autoUpdater.autoDownload = true;
-        await electronUpdater.autoUpdater.checkForUpdatesAndNotify();
-    }
+ipcMain.on('update-app', async () => {
+    if (await isManagerRunningOnFlatpak()) return;
+    
+    electronUpdater.autoUpdater.checkForUpdatesAndNotify();
 });
 
 ipcMain.on('install-via-thunderstore', (installString) => {

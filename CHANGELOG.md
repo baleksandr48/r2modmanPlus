@@ -1,3 +1,191 @@
+### 3.2.15
+
+#### UI Changes
+
+- Includes a bottom bar which allows for:
+  - Faster game changing
+  - Faster profile switching
+  - Easier access to profile exporting
+- The "Start" action is now more distinguishable
+- Navbar sections are clearer
+
+#### Games added
+
+- Astroneer
+- Deadly Delivery
+- Granny: Chapter Two
+- Soulcalibur VI
+- A Gentleman's Dispute
+- Super Battle Golf
+- Cursed Words
+- Ducks Can Drive
+- Gorilla Tag
+- Jump Scare Mansion
+- Pit of Goblin
+- Very Very Valet
+- Cryo
+- Crawlspace
+- Big Ambitions
+
+#### Fixes
+
+- Actions on the profile selection screen are properly aligned
+- Several fixes for mod installation behaviours
+
+### 3.2.14
+#### Games added
+- Carrier Deck
+- Factory Planner
+- On-Together: Virtual Co-Working
+- Project Arrhythmia
+- Stolen Realm
+- The Farmer Was Replaced
+- YAPYAP
+
+#### Fixes
+- On Together automatically resolves the correct folder
+- Fixed linux_wrapper implementation that supports UMM. (Thanks to @alexneargarder)
+- Miside image fixed (Thanks to @Hythera)
+
+### 3.2.13
+#### Fixes
+- Linux behaviour used to automatically set WINEDLLOVERRIDES. This has been restored for now.
+- Launch argument display fixed in the Help section (Thanks to @alexneargarder).
+
+### 3.2.12
+#### Games added
+- KeyWe
+- Smushi Come Home
+- Crime Simulator
+- Scrap Mechanic
+- Baby Steps
+- Chill with You : Lo-Fi Story
+- Crawlspace 2
+- Goblin Buster: Incremental Tower Defense
+- MineMogul
+- Nuclear Option
+- Pushing it! Together - Sisyphus Co-op
+- RAM: Random Access Mayhem
+- Unfair Flips
+- RV There Yet
+- Crab Game
+- Cloverpit
+    - Xbox Game Pass PC support
+
+#### Performance
+- Mods.yml file size has been reduced by 99.35%
+    - This results in huge improvements to the performance of profiles
+    - You'll need to perform a changing action on the profile for it to take effect. This can be:
+        - Mod re-ordering
+        - Install/Uninstall/Enable/Disable
+    - Once done, accessing the profiles screen should be near instant
+- Local mod list is loaded asynchronously and is visible far quicker than before
+    - Significantly reduces time spent hanging waiting for the mod list to load
+
+#### Design changes
+- Mod card buttons have been made consistent and no longer take up the entire space
+    - Easier to visually scan
+    - Less mouse movement required
+- The online preview panel now has a different background colour
+- Scrollbars are now app-styled rather than native
+- Other tweaks to improve the user experience
+
+#### Flatpak builds
+
+Flatpack builds are now available for Linux users in the r2modman GitHub repository:
+https://github.com/ebkr/r2modmanPlus/releases/latest
+
+These builds are ideal for Steam Deck and can run in Game Mode.
+
+> There are currently issues with Steam Deck's `Gamescope` compositor where dropdowns appear under the window.
+You can use arrows to work around this. I'll look into a solution further down the line.
+This issue is not present when running in Desktop Mode.
+
+### 3.2.11
+#### Games added
+- Aeruta
+- Beetleball (playtest version)
+- Football Manager 26
+- Necropolis
+- Super Fantasy Kingdom
+- Vigil
+
+#### Fixes
+- PEAK image has been restored
+- Steam directory resolution improvements on Linux platforms (thanks to @RossBrunton)
+
+### 3.2.10
+#### Games added
+- Bendy and the Ink Machine
+- Forsaken Frontiers
+- Return From Core
+- Mimesis
+- Five Nights at Freddy's: Into the Pit
+  - EGS support
+- Broforce
+- Megabonk
+  - Linux executable can now be selected
+
+#### Bugs fixed
+- Being offline no longer prevents the manager from loading into a game
+- Updates are now checked on app startup instead of after game selection
+- EGS games can be launched again
+
+### 3.2.9
+#### Games added
+- Megabonk
+- An Unfinished Game
+- Easy Delivery Co
+- Jump Space
+- CloverPit
+- Grey Hack
+- Slasher's Keep
+
+#### Changes
+- Hollow Knight: Silksong Linux can now be selected
+- NSFW indicator in the preview panel and mod list row in the online section
+- Preview metadata can be collapsed to reveal allow for more preview space
+
+### 3.2.8
+#### Changes
+- Config Editor
+  - Config Editor headers are now less obtrusive
+  - Config Editor now supports multi-select options
+  - When loading a large number of config files, a spinner is shown instead of hanging the application
+  - "Show more" functionality now restricts per line length until selected
+- Linux Native/Proton detection and install fixes
+
+### 3.2.7
+#### Changes
+- GTK version issue preventing launches should no longer be present
+- Resonite Renderer path in mods (affecting AudioBridge) should now resolve as intended
+- First-time install of Linux wrapper is now written to disk correctly
+
+### 3.2.6
+#### Changes
+- Linux wrapper is now resolved correctly if not previously present
+
+### 3.2.5
+#### Changes
+- Fixed several bugs causing rendering issues
+
+### 3.2.4
+#### Games added
+- Hollow Knight: Silksong
+- Resonite
+- House of Legacy
+- Beton Brutal
+- Pair A Dice
+- Maltese's Fluffy Onsen
+- Paper Animal Adventure
+- PAC-MAN WORLD Re-PAC
+- Darkwater
+
+#### Changes
+- Preview panel can now be resized
+- Download and install progress is now better reflected
+- The entire application has upgraded to Vue 3 along with some other internal tooling upgrades
+
 ### 3.2.3
 #### Games added
 - Len's Island

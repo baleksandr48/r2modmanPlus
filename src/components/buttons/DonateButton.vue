@@ -1,8 +1,8 @@
 <template>
     <ExternalLink v-if="mod && mod.getDonationLink()"
           :url="mod.getDonationLink()"
-          class="card-footer-item"
-          v-tooltip.left="{content: t('translations.pages.manager.installed.localModCard.tooltips.donate'), distance: 0}">
+          class="button"
+          v-tooltip.top="{content: t('translations.pages.manager.installed.localModCard.tooltips.donate'), distance: 10}">
         <i class='fas fa-heart margin-right margin-right--half-width'></i>
         {{ t('translations.pages.manager.installed.localModCard.actions.donate') }}
     </ExternalLink>

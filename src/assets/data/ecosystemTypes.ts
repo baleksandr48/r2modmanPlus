@@ -22,7 +22,8 @@ export interface ThunderstoreEcosyste {
 }
 
 export interface Category {
-    label: string;
+    hidden?: boolean;
+    label:   string;
 }
 
 export interface Section {
@@ -115,7 +116,9 @@ export enum Loader {
     NORTHSTAR = "northstar",
     RECURSIVE_MELONLOADER = "recursive-melonloader",
     RETURN_OF_MODDING = "return-of-modding",
+    RIVET = "rivet",
     SHIMLOADER = "shimloader",
+    UMM = "umm",
 }
 
 export interface ModloaderPackage {
@@ -311,6 +314,7 @@ const typeMap: any = {
         { json: "wikiUrl", js: "wikiUrl", typ: u(undefined, "") },
     ], false),
     "Category": o([
+        { json: "hidden", js: "hidden", typ: u(undefined, true) },
         { json: "label", js: "label", typ: "" },
     ], false),
     "Section": o([
@@ -402,6 +406,8 @@ const typeMap: any = {
         "northstar",
         "recursive-melonloader",
         "return-of-modding",
+        "rivet",
         "shimloader",
+        "umm",
     ],
 };

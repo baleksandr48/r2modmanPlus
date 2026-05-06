@@ -9,11 +9,11 @@ import { getCombosByDependencyStrings } from '../../r2mm/manager/PackageDexieSto
 import { ExternalLink } from '../all';
 import R2Error from '../../model/errors/R2Error';
 import { getFullDependencyList, InstallMode } from '../../utils/DependencyUtils';
+import debounce from 'lodash.debounce';
+import ManagerSettings from '../../r2mm/manager/ManagerSettings';
 import { getStore } from '../../providers/generic/store/StoreProvider';
 import { transformPackageUrl } from '../../providers/cdn/PackageUrlTransformer';
-import {useI18n} from "vue-i18n";
-import ManagerSettings from '../../r2mm/manager/ManagerSettings';
-import debounce from 'lodash.debounce';
+import { useI18n } from 'vue-i18n';
 
 const store = getStore<State>();
 const { t, d, messages, locale } = useI18n();
@@ -34,11 +34,12 @@ const changelogError = ref<R2Error | null>(null);
 const activeTab = ref<"README" | "CHANGELOG" | "Dependencies">("README");
 const loadingPanel = ref<boolean>(true);
 const dependencies = ref<ThunderstoreMod[]>([]);
+const isNsfw = computed<boolean>(() => props.mod?.getNsfwFlag())
 
 const maxPanelWidth = ref(getMaxPanelWidth());
 
 function getMaxPanelWidth(): number {
-    return window.outerWidth - document.getElementsByClassName("nav-column")[0].scrollWidth;
+    return window.outerWidth - document.getElementsByClassName("nav-column")[0]!.scrollWidth;
 }
 
 function setActiveTab(tab: "README" | "CHANGELOG" | "Dependencies") {
@@ -46,7 +47,7 @@ function setActiveTab(tab: "README" | "CHANGELOG" | "Dependencies") {
 }
 
 function fetchDataFor(mod: ThunderstoreMod, type: "readme" | "changelog"): Promise<string> {
-    return fetch(transformPackageUrl(`https://thunderstore.io/api/cyberstorm/package/${mod.getOwner()}/${mod.getName()}/latest/${type}/`))
+    return fetch(transformPackageUrl(`https://thunderstore.io/api/cyberstorm/package/${mod.getOwner()}/${mod.getName()}/v/${mod.getLatestVersion()}/${type}/`))
         .then(res => {
             if (!res.ok) {
                 throw new Error(`No ${type} available for ${mod.getName()}`)
@@ -103,7 +104,9 @@ function fetchAll(modToLoad: ThunderstoreMod) {
             }
         });
 
-    buildDependencies(modToLoad).then(value => dependencies.value = value);
+    buildDependencies(modToLoad)
+        .then(value => value.sort((a, b) => a.getName().localeCompare(b.getName())))
+        .then(value => dependencies.value = value);
     fetchChangelog(modToLoad);
 }
 
@@ -126,6 +129,7 @@ async function buildDependencies(mod: ThunderstoreMod) {
 fetchAll(props.mod);
 watch(() => props.mod, (newValue) => {
     fetchAll(newValue);
+    document.getElementById('package-preview-details')?.setAttribute('open', 'true');
 });
 
 function getReadableDate(date: string): string {
@@ -149,7 +153,7 @@ function showDownloadModal(mod: ThunderstoreMod) {
 }
 
 
-const previewPanelWidth = ref(500);
+const previewPanelWidth = ref(450);
 ManagerSettings.getSingleton(store.state.activeGame)
     .then(async settings => previewPanelWidth.value = await settings.getPreviewPanelWidth())
 
@@ -187,49 +191,55 @@ function dragEnd(event: DragEvent) {
         <div class="c-preview-panel" :style="`width: calc(${previewPanelWidth}px - 2.5rem + 5px); max-width: ${maxPanelWidth}px`">
             <div class="c-preview-panel__header">
                 <button class="close-button button" @click="() => emits('close')">
-                <i class="fas fa-times"/>
-            </button>
-            <h1 class="title">
-                {{ mod.getName() }}
-            </h1>
+                    <i class="fas fa-times"/>
+                </button>
+                <h1 class="title">
+                    {{ mod.getName() }}
+                </h1>
                 <h2 class="subtitle">
                     {{ t('translations.pages.manager.online.previewPanel.author', { author: mod.getOwner() }) }}
                 </h2>
-                <div class="margin-top margin-bottom">
-                    <p class="description">{{ mod.getDescription() }}</p>
-                </div>
-                <p class='card-timestamp'>
-                    <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.downloads">
-                        <template v-slot:downloads>
-                            <span class="font-weight-normal">{{ mod.getDownloadCount() }}</span>
-                        </template>
-                    </i18n-t>
-                </p>
-                <p class='card-timestamp'>
-                    <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.likes">
-                        <template v-slot:likes>
-                            <span class="font-weight-normal">{{ mod.getRating() }}</span>
-                        </template>
-                    </i18n-t>
-                </p>
-                <p class='card-timestamp'>
-                    <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.lastUpdated">
-                        <template v-slot:date>
-                        <span class="font-weight-normal">
-                            {{ d(mod.getDateUpdated(), 'long', messages[locale].metadata.locale) }}
-                        </span>
-                        </template>
-                    </i18n-t>
-                </p>
-                <p class='card-timestamp'>
-                    <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.categories">
-                        <template v-slot:categories>
-                            <span class="font-weight-normal">{{ getReadableCategories(mod) }}</span>
-                        </template>
-                    </i18n-t>
-                </p>
+                <details id="package-preview-details" open="true">
+                    <summary class='card-timestamp non-selectable'>Package information</summary>
+                    <div class="notification is-warning margin-top" v-if="isNsfw">
+                        <p>This mod may contain potentially explicit material</p>
+                    </div>
+                    <div class="margin-top margin-bottom">
+                        <p class="description">{{ mod.getDescription() }}</p>
+                    </div>
+                    <p class='card-timestamp'>
+                        <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.downloads">
+                            <template v-slot:downloads>
+                                <span class="font-weight-normal">{{ mod.getDownloadCount() }}</span>
+                            </template>
+                        </i18n-t>
+                    </p>
+                    <p class='card-timestamp'>
+                        <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.likes">
+                            <template v-slot:likes>
+                                <span class="font-weight-normal">{{ mod.getRating() }}</span>
+                            </template>
+                        </i18n-t>
+                    </p>
+                    <p class='card-timestamp'>
+                        <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.lastUpdated">
+                            <template v-slot:date>
+                                <span class="font-weight-normal">
+                                    {{ d(mod.getDateUpdated(), 'long', messages[locale].metadata.locale) }}
+                                </span>
+                            </template>
+                        </i18n-t>
+                    </p>
+                    <p class='card-timestamp'>
+                        <i18n-t tag="strong" keypath="translations.pages.manager.online.previewPanel.metadata.categories">
+                            <template v-slot:categories>
+                                <span class="font-weight-normal">{{ getReadableCategories(mod) }}</span>
+                            </template>
+                        </i18n-t>
+                    </p>
+                </details>
             </div>
-            <div class="sticky-top inherit-background-colour sticky-top--no-shadow sticky-top--opaque no-margin sticky-top--no-padding">
+            <div class="sticky-top sticky-top--no-shadow sticky-top--inherit no-margin sticky-top--no-padding">
                 <div class="button-group">
                     <button class="button is-info" @click="showDownloadModal(mod)">
                         {{ t('translations.pages.manager.online.previewPanel.actions.download') }}
@@ -279,7 +289,7 @@ function dragEnd(event: DragEvent) {
                     <template v-if="readmeError !== null">
                         <div class="notification is-danger">
                             <h2 class="title is-6">
-                                {{ t('translations.pages.manager.online.previewPanel.tabs.unableToFetchReadme') }}
+                                {{ t('translations.pages.manager.online.previewPanel.unableToFetchReadme') }}
                             </h2>
                             <p>{{ readmeError.message }}</p>
                         </div>
@@ -311,6 +321,8 @@ function dragEnd(event: DragEvent) {
     display: flex;
     flex-direction: row;
     max-width: 80vw;
+    background-color: var(--preview-panel-background-color);
+    margin-left: 1rem;
 }
 
 .c-drag-pane {
@@ -328,10 +340,11 @@ function dragEnd(event: DragEvent) {
 }
 
 .c-preview-panel {
-    height: calc(100vh - 2.75rem);
+    height: calc(100% - 1rem);
     display: flex;
     flex-flow: column;
     margin: 1rem;
+    margin-left: 2rem;
     color: var(--v2-primary-text-color);
     min-width: 350px;
 
@@ -341,7 +354,7 @@ function dragEnd(event: DragEvent) {
 
     &__content {
         flex: 1;
-        padding: 1rem;
+        padding: 1rem 0;
         display: block;
         height: max-content;
         overflow-y: auto;
@@ -357,11 +370,11 @@ function dragEnd(event: DragEvent) {
     gap: 0.5rem;
 }
 
-.font-weight-normal {
-    font-weight: normal;
-}
-
 .close-button {
     float: right;
+}
+
+summary {
+    cursor: pointer;
 }
 </style>

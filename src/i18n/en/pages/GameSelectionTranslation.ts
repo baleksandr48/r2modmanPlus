@@ -35,5 +35,16 @@ export const GameSelectionTranslation: GameSelectionMessageFormat = {
             game: 'Search for a game',
             server: 'Search for a server',
         }
+    },
+    cardView: {
+        imageAltText: 'Game image',
+        sections: {
+            favourites: 'Favourites',
+            games: 'Games',
+            servers: 'Servers',
+            searchResults: 'Search results',
+            hiddenGames: 'Hidden games',
+            hiddenGamesNotice: 'These games are no longer supported.',
+        }
     }
 }

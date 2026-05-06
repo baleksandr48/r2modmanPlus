@@ -7,6 +7,8 @@ export type NodePathProvider = {
     basename: (path: string) => string;
     relative: (pathOne: string, pathTwo: string) => string;
     resolve: (...paths: string[]) => string;
+    sep: string;
+
 }
 
 let implementation: () => NodePathProvider;
@@ -28,7 +30,8 @@ const nodePath: NodePathProvider = {
     extname: path => getImplementation().extname(path),
     basename: path => getImplementation().basename(path),
     relative: (pathOne, pathTwo) => getImplementation().relative(pathOne, pathTwo),
-    resolve: paths => getImplementation().resolve(paths),
+    resolve: (...args) => getImplementation().resolve(...args),
+    get sep() { return getImplementation().sep }
 };
 
 export default nodePath;

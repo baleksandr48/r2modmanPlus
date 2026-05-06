@@ -11,10 +11,18 @@ import LinuxGameDirectoryResolver from '../r2mm/manager/linux/GameDirectoryResol
 import {LaunchType} from "../model/real_enums/launch/LaunchType";
 import path from "../providers/node/path/path";
 import PathResolver from "../r2mm/manager/PathResolver";
+import appWindow from '../providers/node/app/app_window';
+import InteractionProvider from "../providers/ror2/system/InteractionProvider";
+import { TypedEventEmitter } from "./TypedEventEmitter";
 
 export enum LaunchMode { VANILLA, MODDED };
 
+export const OnGameLaunch = new TypedEventEmitter<{ game: Game, profile: Profile, mode: LaunchMode }>();
+
 export const launch = async (game: Game, profile: Profile, mode: LaunchMode): Promise<void> => {
+    // This event is used for analytics by TMM
+    await OnGameLaunch.emit({game, profile, mode});
+
     const error = (mode === LaunchMode.MODDED)
         ? await GameRunnerProvider.instance.startModded(game, profile)
         : await GameRunnerProvider.instance.startVanilla(game, profile);
@@ -71,7 +79,7 @@ export const throwIfNoGameDir = async (game: Game): Promise<void> => {
 };
 
 export async function isProtonRequired(activeGame: Game) {
-    if (process.platform !== 'linux') {
+    if (appWindow.getPlatform() !== 'linux') {
         return false;
     }
     return [Platform.STEAM, Platform.STEAM_DIRECT].includes(activeGame.activePlatform.storePlatform)
@@ -89,13 +97,46 @@ export async function getDeterminedLaunchType(game: Game, launchType: LaunchType
     return LaunchType.NATIVE;
 }
 
-export async function areWrapperArgumentsProvided(game: Game): Promise<boolean> {
+export async function isManagerRunningOnFlatpak(): Promise<boolean> {
+    const env = await InteractionProvider.instance.getEnvironmentVariables();
+    return !!env.FLATPAK_ID;
+}
+
+export async function getProvidedWrapperArguments(game: Game): Promise<string> {
     return Promise.resolve()
         .then(async () => await (GameDirectoryResolverProvider.instance as LinuxGameDirectoryResolver).getLaunchArgs(game))
-        .then(launchArgs => typeof launchArgs === 'string' && launchArgs.startsWith(path.join(PathResolver.MOD_ROOT, 'linux_wrapper.sh')))
+        .then(launchArgs => {
+            if (typeof launchArgs !== 'string') {
+                throw launchArgs;
+            }
+            return launchArgs.replaceAll('\\"', '"');
+        });
+}
+
+/**
+ * Returns true if any wrapper script is set. The wrapper does not need to be valid.
+ * @param game - The game to check for the set launch arguments
+ */
+export async function areAnyWrapperArgumentsProvided(game: Game): Promise<boolean> {
+    // We don't care about the paths here
+    // We can assume that if a wrapper is provided then it's pointing to an existing install (old or new)
+    const flatpakWrapper = 'web_start_wrapper.sh';
+    const linuxWrapper = 'linux_wrapper.sh';
+    return getProvidedWrapperArguments(game)
+        .then(launchArgs => (launchArgs.includes(linuxWrapper) || launchArgs.includes(flatpakWrapper)))
+        .catch(() => false);
+}
+
+export async function areWrapperArgumentsProvided(game: Game): Promise<boolean> {
+    const isFlatpak = await isManagerRunningOnFlatpak();
+    const flatpakWrapper = path.join(PathResolver.MOD_ROOT, 'web_start_wrapper.sh');
+    const linuxWrapper = path.join(PathResolver.MOD_ROOT, 'linux_wrapper.sh');
+    const appropriateWrapper = isFlatpak ? flatpakWrapper : linuxWrapper;
+    return getProvidedWrapperArguments(game)
+        .then(launchArgs => launchArgs.includes(appropriateWrapper))
         .catch(() => false);
 }
 
 export async function getWrapperLaunchArgs(): Promise<string> {
-    return `"${path.join(PathResolver.MOD_ROOT, process.platform === 'darwin' ? 'macos_proxy' : 'linux_wrapper.sh')}" %command%`;
+    return `"${path.join(PathResolver.MOD_ROOT, appWindow.getPlatform() === 'darwin' ? 'macos_proxy' : 'linux_wrapper.sh')}" %command%`;
 }

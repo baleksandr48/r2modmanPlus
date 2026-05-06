@@ -7,10 +7,12 @@
                         <div class='card-header-icon mod-logo' v-if="image !== ''">
                             <figure class='image is-48x48 image-parent'>
                                 <img :src='image' :alt="t('translations.pages.manager.installed.expandableCard.imageAltText')" class='image-overlap'/>
-                                <img v-if="store.state.profile.funkyMode" src='../assets/funky_mode.png' :alt="t('translations.pages.manager.installed.expandableCard.funkyModeAltText')" class='image-overlap'/>
+                                <img v-if="store.state.profile.funkyMode" :src='ProtocolProvider.getPublicAssetUrl("/funky_mode.png")' :alt="t('translations.pages.manager.installed.expandableCard.funkyModeAltText')" class='image-overlap'/>
                             </figure>
                         </div>
-                        <span ref="title" class='card-header-title'><slot name='title'></slot></span>
+                        <span ref="title" class='card-header-title expandable-card__title'>
+                            <slot name='title'></slot>
+                        </span>
                         <slot name='other-icons'></slot>
                         <!-- Allow movement of mod order -->
                         <a v-if='showSort' class='card-header-icon handle'>
@@ -24,7 +26,7 @@
                         </a>
                     </header>
                 </div>
-                <div class='card-content' v-show='visible' v-if="description !== ''">
+                <div class='mod-card-content' v-show='visible' v-if="description !== ''">
                     <div class='content'>
                         <p ref="description">{{description}}</p>
                         <slot name='description'></slot>
@@ -44,6 +46,7 @@ import { computed, onMounted, ref, watchEffect } from 'vue';
 import { getStore } from '../providers/generic/store/StoreProvider';
 import { State } from '../store';
 import { useI18n } from "vue-i18n";
+import ProtocolProvider from '../providers/generic/protocol/ProtocolProvider';
 
 const store = getStore<State>();
 const { t } = useI18n();
@@ -83,6 +86,18 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .card-header-title {
-    word-break: break-all;
+    word-break: auto-phrase;
+}
+
+.mod-card-content {
+    padding: 0.5em 1rem;
+}
+
+.card-footer {
+    padding-left: 0.5rem;
+}
+
+.handle {
+    cursor: grab;
 }
 </style>

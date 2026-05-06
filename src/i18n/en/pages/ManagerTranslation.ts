@@ -98,7 +98,6 @@ export const ManagerTranslation: ManagerMessageFormat = {
         failedToSetTheGameFolder: {
             title: 'Failed to set the {gameName} folder',
             listedExecutableNames: 'The executable must be either of the following: "{options}".',
-            solution: 'If this error has appeared but the executable is correct, please run as administrator.'
         },
         clearingGameDirectory: {
             title: 'Clearing the {gameName} installation directory',
@@ -119,7 +118,7 @@ export const ManagerTranslation: ManagerMessageFormat = {
         dependencyStrings: {
             title: 'Dependency string list',
             dependency: '{modName}-{versionNumber}',
-            close: 'Close'
+            close: '@:translations.pages.manager.online.modals.sort.close',
         },
         launchArguments: {
             title: 'Set custom launch arguments',
@@ -309,11 +308,11 @@ export const ManagerTranslation: ManagerMessageFormat = {
                     short: 'Deprecated',
                     long: 'This mod is potentially broken'
                 },
-                donate: 'Donate to the mod author',
+                donate: '@:translations.pages.manager.installed.localModCard.tooltips.donate',
                 installed: 'Mod already installed',
             },
             mod: {
-                author: 'By {author}'
+                author: '@:translations.pages.manager.online.previewPanel.author'
             },
             actions: {
                 download: 'Download',
