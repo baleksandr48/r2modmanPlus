@@ -238,7 +238,7 @@ function computeDefaultInstallDirectory(): string {
 function changeGameInstallDirectory() {
     const ror2Directory: string = settings.value.getContext().gameSpecific.gameDirectory || computeDefaultInstallDirectory();
     InteractionProvider.instance.selectFile({
-        title: t('translations.pages.manager.actions.locateSteamExecutable', { gameName: activeGame.value.displayName }),
+        title: t('translations.pages.manager.actions.locateGameExecutable', { gameName: activeGame.value.displayName }),
         // Lazy reduce. Assume Linux name and Windows name are identical besides extension.
         // Should fix if needed, although unlikely.
         filters: (activeGame.value.exeName.map(value => {
@@ -276,7 +276,7 @@ function changeGameInstallDirectoryGamePass() {
         title: t('translations.pages.manager.actions.locateGameLaunchHelper'),
         filters: [{ name: "gamelaunchhelper", extensions: ["exe"] }],
         defaultPath: ror2Directory,
-        buttonLabel: t('translations.pages.manager.actions.selectExecutables')
+        buttonLabel: t('translations.pages.manager.actions.selectExecutable')
     }).then(async files => {
         if (files.length === 1) {
             try {

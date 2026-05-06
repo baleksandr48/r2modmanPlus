@@ -3,7 +3,7 @@
         <div class="game-card">
             <div class="game-card__image">
                 <template v-if="activeTab === GameInstanceType.GAME">
-                    <img :src="getImageHref(`/images/game_selection/${game.gameImage}`)" alt="Game Logo" class="game-card__thumbnail"/>
+                    <img :src="getImageHref(`/images/game_selection/${game.gameImage}`)" :alt="t('translations.pages.gameSelection.cardView.imageAltText')" class="game-card__thumbnail"/>
                 </template>
                 <template v-else>
                     <div class="game-card__placeholder">{{ game.displayName }}</div>
@@ -13,9 +13,9 @@
                 <div class="game-card__overlay-spacer"></div>
                 <div class="game-card__overlay-body">
                     <button class="button is-info" @click="emit('select', game)">
-                        Select {{ activeTab.toLowerCase() }}
+                        {{ t('translations.pages.gameSelection.actions.select.' + activeTab) }}
                     </button>
-                    <button class="button" @click="emit('set-default', game)">Set as default</button>
+                    <button class="button" @click="emit('set-default', game)">{{ t('translations.pages.gameSelection.actions.setAsDefault') }}</button>
                 </div>
                 <div class="game-card__overlay-spacer"></div>
             </div>
@@ -36,6 +36,9 @@
 import Game from '../../model/game/Game';
 import { GameInstanceType } from '../../model/schema/ThunderstoreSchema';
 import ProtocolProvider from '../../providers/generic/protocol/ProtocolProvider';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 type Props = {
     game: Game;
