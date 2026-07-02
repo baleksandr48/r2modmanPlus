@@ -327,11 +327,11 @@ function setFunkyMode(value: boolean) {
 }
 
 function browseDataFolder() {
-    LinkProvider.instance.openLink('file://' + PathResolver.ROOT);
+    LinkProvider.instance.openPath(PathResolver.ROOT);
 }
 
 function browseProfileFolder() {
-    LinkProvider.instance.openLink('file://' + profile.value.getProfilePath());
+    LinkProvider.instance.openPath(profile.value.getProfilePath());
 }
 
 function toggleCardExpanded(expanded: boolean) {
